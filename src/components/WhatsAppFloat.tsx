@@ -1,10 +1,22 @@
 import { MessageCircle } from 'lucide-react';
-import { whatsappLink } from '@/data/catalog';
+import { useSiteSettings } from '@/context/SiteSettingsContext';
 
 export default function WhatsAppFloat() {
+  const { settings } = useSiteSettings();
+
+  const phone = settings.whatsapp_number;
+
+  if (!phone) return null;
+
+  const message = encodeURIComponent(
+    'Olá! Vim pelo site da Paulo Arte Criativa.'
+  );
+
+  const link = `https://wa.me/${phone}?text=${message}`;
+
   return (
     <a
-      href={whatsappLink('Olá! Vim pelo site da Paulo Arte Criativa.')}
+      href={link}
       target="_blank"
       rel="noreferrer"
       aria-label="Falar no WhatsApp"

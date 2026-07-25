@@ -25,7 +25,7 @@ import ImageUploader, { type UploadedImage } from '@/components/ImageUploader';
 type Tab = 'dashboard' | 'products' | 'categories' | 'dates' | 'orders' | 'reviews' | 'coupons' | 'digital' | 'settings';
 
 const badgeLabels: Record<string, string> = {
-  destaque: 'Destaque',
+  destaque: 'Favorito dos Clientes',
   mais_vendido: 'Mais Vendido',
   novo: 'Novo',
   promocao: 'Promoção',
@@ -393,10 +393,13 @@ function ProductForm({ product, categories, onSave, onClose }: {
           {/* BADGE */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-brand-600">Selo do produto</label>
+            <p className="mb-3 text-xs leading-relaxed text-brand-400">
+              Marque <strong>Favorito dos Clientes</strong> para exibir este produto na página inicial.
+            </p>
             <div className="flex flex-wrap gap-2">
               {[
                 { value: null, label: 'Nenhum' },
-                { value: 'destaque', label: 'Destaque' },
+                { value: 'destaque', label: '⭐ Favorito dos Clientes' },
                 { value: 'mais_vendido', label: 'Mais Vendido' },
                 { value: 'novo', label: 'Novo' },
                 { value: 'promocao', label: 'Promoção' },

@@ -6,13 +6,9 @@ import {
   Gift,
   Heart,
   MessageCircle,
-  Package,
-  ShoppingBag,
   Sparkles,
   Star,
   Truck,
-  Coffee,
-  Cake,
   Baby,
   GraduationCap,
   TreePine,
@@ -21,8 +17,9 @@ import {
   Users,
   CalendarHeart,
 } from 'lucide-react';
-import { whatsappLink, categories, commemorativeDates } from '@/data/catalog';
+import { useSiteSettings } from '@/context/SiteSettingsContext';
 import ProductCard from '@/components/ProductCard';
+import CategoryHighlights from '@/components/CategoryHighlights';
 import DecorativeBg from '@/components/DecorativeBg';
 import { fetchProducts, fetchReviews, type ProductRow, type ReviewRow } from '@/lib/api';
 import type { StoreProduct } from '@/lib/types';
@@ -74,19 +71,6 @@ const floatingBadges = [
   { icon: Truck, text: 'Enviamos para todo Brasil', className: 'left-2 bottom-0', delay: 1.05, color: 'text-brand-400' },
 ];
 
-const categoryIcons: Record<string, typeof Gift> = {
-  'Sacolas Personalizadas': ShoppingBag,
-  'Caixas para Caneca': Package,
-  'Caixas Explosão': Gift,
-  'Kits Presente': Gift,
-  'Canecas': Coffee,
-  'Topos de Bolo': Cake,
-  'Papelaria Personalizada': Sparkles,
-  'Adesivos': Heart,
-  'Lembrancinhas': PartyPopper,
-  'Arquivos Digitais': Package,
-};
-
 const dateCards = [
   { name: 'Dia das Mães', icon: Heart, color: 'from-rose-100 to-rose-50', iconColor: 'text-rose-500' },
   { name: 'Dia dos Pais', icon: Users, color: 'from-brand-100 to-brand-50', iconColor: 'text-brand-500' },
@@ -104,6 +88,14 @@ const dateCards = [
 export default function Home() {
   const [featured, setFeatured] = useState<ProductRow[]>([]);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
+  const { settings } = useSiteSettings();
+
+  const whatsappNumber = (
+    settings.whatsapp_number || '5565998022115'
+  ).replace(/\D/g, '');
+
+  const whatsappUrl = (message: string) =>
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
   useEffect(() => {
     fetchProducts()
@@ -140,7 +132,7 @@ export default function Home() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
-                href={whatsappLink('Olá! Gostaria de solicitar um orçamento.')}
+                href={whatsappUrl('Olá! Gostaria de solicitar um orçamento.')}
                 target="_blank"
                 rel="noreferrer"
                 className="btn-rose"
@@ -234,40 +226,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CATEGORIES */}
-      <section className="container-page py-16">
-        <div className="text-center">
-          <span className="eyebrow">Categorias</span>
-          <h2 className="heading mt-2 text-brand-700">Navegue por tipo</h2>
-          <p className="mx-auto mt-4 max-w-lg text-brand-400">
-            Encontre exatamente o que procura. Cada categoria é um universo de criatividade.
-          </p>
-        </div>
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {categories.map((cat, i) => {
-            const Icon = categoryIcons[cat] || Gift;
-            return (
-              <motion.div
-                key={cat}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-              >
-                <Link
-                  to={`/catalogo?cat=${encodeURIComponent(cat)}`}
-                  className="group flex flex-col items-center gap-3 rounded-3xl bg-white p-6 text-center shadow-card ring-1 ring-nude-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg"
-                >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 to-nude-100 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-                    <Icon className="h-7 w-7 text-rose-500" />
-                  </div>
-                  <span className="text-sm font-semibold text-brand-600">{cat}</span>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+      <CategoryHighlights />
 
       {/* COMMEMORATIVE DATES */}
       <section className="relative overflow-hidden bg-nude-100 py-16">
@@ -310,8 +269,8 @@ export default function Home() {
       <section className="container-page py-16">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <span className="eyebrow">Destaques</span>
-            <h2 className="heading mt-2 text-brand-700">Mais procurados</h2>
+            <span className="eyebrow">Escolhas especiais</span>
+            <h2 className="heading mt-2 text-brand-700">❤️ Os Favoritos dos Clientes</h2>
           </div>
           <Link to="/catalogo" className="btn-ghost hidden sm:inline-flex">
             Ver tudo <ArrowRight className="h-4 w-4" />
@@ -323,7 +282,7 @@ export default function Home() {
               <ProductCard key={p.id} product={p as unknown as StoreProduct} />
             ))
           ) : (
-            <p className="col-span-full text-center text-brand-400">Carregando destaques...</p>
+            <p className="col-span-full text-center text-brand-400">Nenhum favorito selecionado ainda.</p>
           )}
         </div>
       </section>
@@ -405,7 +364,7 @@ export default function Home() {
               Fale com a gente pelo WhatsApp e transforme sua ideia em um presente único.
             </p>
             <a
-              href={whatsappLink('Olá! Quero criar um personalizado exclusivo.')}
+              href={whatsappUrl('Olá! Quero criar um personalizado exclusivo.')}
               target="_blank"
               rel="noreferrer"
               className="btn-rose mt-8"

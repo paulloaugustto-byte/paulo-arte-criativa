@@ -277,7 +277,7 @@ export const faqs = [
   },
 ];
 
-export const whatsappNumber = '5511999999999';
+export const whatsappNumber = '5565998022115';
 
 export function whatsappLink(message: string): string {
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;

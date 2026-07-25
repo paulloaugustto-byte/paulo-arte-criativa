@@ -1,23 +1,92 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Heart, Menu, Search, ShoppingBag, X } from 'lucide-react';
-import { useState } from 'react';
+import {
+  ChevronDown,
+  Heart,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Search,
+  ShoppingBag,
+  Store,
+  X,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@/context/StoreContext';
+import { useAuth } from '@/context/AuthContext';
 
 const links = [
   { to: '/', label: 'Início' },
-  { to: '/catalogo', label: 'Catálogo' },
   { to: '/arquivos-digitais', label: 'Arquivos Digitais' },
   { to: '/galeria', label: 'Galeria' },
   { to: '/sobre', label: 'Quem Somos' },
   { to: '/contato', label: 'Contato' },
 ];
 
+const productCategories = [
+  { label: 'Sacolas Personalizadas', category: 'Sacolas Personalizadas' },
+  { label: 'Canecas', category: 'Canecas' },
+  { label: 'Topos de Bolo', category: 'Topos de Bolo' },
+  { label: 'Kits Festa', category: 'Kits Presente' },
+  { label: 'Lembrancinhas', category: 'Lembrancinhas' },
+  { label: 'Caixas para Presente', category: 'Caixas para Caneca' },
+  { label: 'Adesivos', category: 'Adesivos' },
+];
+
 export default function Navbar() {
   const { favorites, cartCount } = useStore();
+  const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [productsMenuOpen, setProductsMenuOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
+  const adminMenuRef = useRef<HTMLDivElement>(null);
+  const productsCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openProductsMenu = () => {
+    if (productsCloseTimer.current) {
+      clearTimeout(productsCloseTimer.current);
+    }
+    setProductsMenuOpen(true);
+  };
+
+  const closeProductsMenu = () => {
+    if (productsCloseTimer.current) {
+      clearTimeout(productsCloseTimer.current);
+    }
+
+    productsCloseTimer.current = setTimeout(() => {
+      setProductsMenuOpen(false);
+    }, 350);
+  };
+
+  const storedName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    '';
+
+  const displayName = storedName.trim()
+    ? storedName.trim().split(/\s+/)[0]
+    : 'Paulo';
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        adminMenuRef.current &&
+        !adminMenuRef.current.contains(event.target as Node)
+      ) {
+        setAdminMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +94,13 @@ export default function Navbar() {
     navigate(`/catalogo?q=${encodeURIComponent(query.trim())}`);
     setSearch(false);
     setQuery('');
+  };
+
+  const handleSignOut = async () => {
+    setAdminMenuOpen(false);
+    setOpen(false);
+    await signOut();
+    navigate('/');
   };
 
   return (
@@ -38,16 +114,92 @@ export default function Navbar() {
             <span className="font-display text-lg font-semibold text-brand-700">
               Paulo Arte Criativa
             </span>
-            <span className="font-script text-sm text-rose-500">Transformando papel em emoções</span>
+            <span className="font-script text-sm text-rose-500">
+              Transformando papel em emoções
+            </span>
           </span>
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex">
-          {links.map((l) => (
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                isActive
+                  ? 'bg-brand-500 text-white shadow-soft'
+                  : 'text-brand-600 hover:bg-nude-100 hover:text-brand-700'
+              }`
+            }
+          >
+            Início
+          </NavLink>
+
+          <div
+            className="relative"
+            onMouseEnter={openProductsMenu}
+            onMouseLeave={closeProductsMenu}
+          >
+            <button
+              type="button"
+              onClick={() => setProductsMenuOpen((value) => !value)}
+              aria-expanded={productsMenuOpen}
+              aria-haspopup="menu"
+              className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-brand-600 transition-all duration-300 hover:bg-nude-100 hover:text-brand-700"
+            >
+              Produtos
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  productsMenuOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {productsMenuOpen && (
+              <div
+                role="menu"
+                onMouseEnter={openProductsMenu}
+                onMouseLeave={closeProductsMenu}
+                className="absolute left-1/2 top-[calc(100%-2px)] z-50 w-72 -translate-x-1/2 rounded-3xl border border-nude-200 bg-white p-3 shadow-xl"
+              >
+                <div className="px-3 pb-2 pt-1">
+                  <p className="font-display text-lg font-semibold text-brand-700">
+                    Produtos
+                  </p>
+                  <p className="mt-1 text-xs text-brand-400">
+                    Escolha uma categoria
+                  </p>
+                </div>
+
+                <div className="border-t border-nude-100 pt-2">
+                  {productCategories.map((item) => (
+                    <Link
+                      key={item.label}
+                      to={`/catalogo?cat=${encodeURIComponent(item.category)}`}
+                      role="menuitem"
+                      onClick={() => setProductsMenuOpen(false)}
+                      className="block rounded-xl px-3 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100 hover:text-brand-700"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+
+                <Link
+                  to="/catalogo"
+                  onClick={() => setProductsMenuOpen(false)}
+                  className="mt-2 block rounded-xl bg-brand-500 px-3 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+                >
+                  Ver catálogo completo
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {links.slice(1).map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
-              end={l.to === '/'}
               className={({ isActive }) =>
                 `rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
                   isActive
@@ -69,6 +221,7 @@ export default function Navbar() {
           >
             <Search className="h-5 w-5" />
           </button>
+
           <Link
             to="/favoritos"
             aria-label="Favoritos"
@@ -81,6 +234,7 @@ export default function Navbar() {
               </span>
             )}
           </Link>
+
           <Link
             to="/carrinho"
             aria-label="Carrinho"
@@ -93,6 +247,80 @@ export default function Navbar() {
               </span>
             )}
           </Link>
+
+          {user && (
+            <div ref={adminMenuRef} className="relative hidden lg:block">
+              <button
+                type="button"
+                onClick={() => setAdminMenuOpen((value) => !value)}
+                aria-expanded={adminMenuOpen}
+                aria-haspopup="menu"
+                className="flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-600"
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 font-display text-xs font-semibold text-white">
+                  P
+                </span>
+                <span className="max-w-28 truncate">{displayName}</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    adminMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {adminMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-3 w-64 overflow-hidden rounded-2xl border border-nude-200 bg-white p-2 shadow-xl"
+                >
+                  <div className="flex items-center gap-3 border-b border-nude-100 px-3 py-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-rose-400 font-display text-lg font-semibold text-white shadow-soft">
+                      P
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-brand-700">
+                        {displayName}
+                      </p>
+                      <p className="truncate text-xs text-brand-400">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/admin/painel"
+                    role="menuitem"
+                    onClick={() => setAdminMenuOpen(false)}
+                    className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Administração
+                  </Link>
+
+                  <Link
+                    to="/"
+                    role="menuitem"
+                    onClick={() => setAdminMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
+                  >
+                    <Store className="h-4 w-4" />
+                    Ver Loja
+                  </Link>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={handleSignOut}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <button
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
@@ -123,11 +351,67 @@ export default function Navbar() {
       {open && (
         <div className="border-t border-nude-200/60 bg-cream-100 lg:hidden">
           <div className="container-page flex flex-col gap-1 py-4">
-            {links.map((l) => (
+            <NavLink
+              to="/"
+              end
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-brand-500 text-white'
+                    : 'text-brand-600 hover:bg-nude-100'
+                }`
+              }
+            >
+              Início
+            </NavLink>
+
+            <button
+              type="button"
+              onClick={() => setMobileProductsOpen((value) => !value)}
+              className="flex items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
+            >
+              Produtos
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  mobileProductsOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {mobileProductsOpen && (
+              <div className="ml-3 flex flex-col gap-1 border-l-2 border-nude-200 pl-3">
+                {productCategories.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={`/catalogo?cat=${encodeURIComponent(item.category)}`}
+                    onClick={() => {
+                      setOpen(false);
+                      setMobileProductsOpen(false);
+                    }}
+                    className="rounded-xl px-3 py-2.5 text-sm text-brand-500 transition-colors hover:bg-nude-100 hover:text-brand-700"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+
+                <Link
+                  to="/catalogo"
+                  onClick={() => {
+                    setOpen(false);
+                    setMobileProductsOpen(false);
+                  }}
+                  className="rounded-xl px-3 py-2.5 text-sm font-semibold text-brand-600 transition-colors hover:bg-nude-100"
+                >
+                  Ver catálogo completo
+                </Link>
+              </div>
+            )}
+
+            {links.slice(1).map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
-                end={l.to === '/'}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
@@ -140,6 +424,49 @@ export default function Navbar() {
                 {l.label}
               </NavLink>
             ))}
+
+            {user && (
+              <div className="mt-3 border-t border-nude-200 pt-3">
+                <div className="flex items-center gap-3 px-4 pb-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-rose-400 font-display text-base font-semibold text-white shadow-soft">
+                    P
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-brand-700">
+                      {displayName}
+                    </p>
+                    <p className="truncate text-xs text-brand-400">{user.email}</p>
+                  </div>
+                </div>
+
+                <Link
+                  to="/admin/painel"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-2xl bg-brand-500 px-4 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-600"
+                >
+                  <LayoutDashboard className="h-5 w-5" />
+                  Administração
+                </Link>
+
+                <Link
+                  to="/"
+                  onClick={() => setOpen(false)}
+                  className="mt-1 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
+                >
+                  <Store className="h-5 w-5" />
+                  Ver Loja
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="mt-1 flex w-full items-center gap-2 rounded-2xl px-4 py-3 text-left text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Sair
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
