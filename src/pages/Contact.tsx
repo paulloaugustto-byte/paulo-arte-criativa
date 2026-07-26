@@ -42,7 +42,7 @@ export default function Contact() {
             </div>
             <div>
               <p className="font-display text-lg font-semibold text-brand-700">WhatsApp</p>
-              <p className="text-sm text-brand-500">(11) 99999-9999</p>
+              <p className="text-sm text-brand-500">(65) 99802-2115</p>
             </div>
           </a>
 
@@ -56,7 +56,7 @@ export default function Contact() {
             </div>
           </a>
 
-          <a href="https://instagram.com" target="_blank" rel="noreferrer" className="card flex items-center gap-4 p-6 transition-transform hover:-translate-y-1">
+          <a  href="https://www.instagram.com/pauloartecriativa/" target="_blank" rel="noreferrer" className="card flex items-center gap-4 p-6 transition-transform hover:-translate-y-1">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
               <Phone className="h-6 w-6" />
             </div>
