@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type {
   ProductRow,
+  ProductVariant,
   ProductImageRow,
   CategoryRow,
   GalleryRow,
@@ -27,12 +28,42 @@ export type {
 
 // ============ PRODUCTS ============
 
+
+function normalizeVariants(value: unknown): ProductVariant[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item, index) => {
+    if (!item || typeof item !== 'object') return [];
+    const raw = item as Partial<ProductVariant>;
+    const name = typeof raw.name === 'string' ? raw.name.trim() : '';
+    const price = Number(raw.price);
+    if (!name || !Number.isFinite(price) || price < 0) return [];
+    return [{
+      id: typeof raw.id === 'string' && raw.id ? raw.id : `variant-${index}`,
+      name,
+      price,
+      is_active: raw.is_active !== false,
+    }];
+  });
+}
+
+function normalizeProduct(row: ProductRow): ProductRow {
+  return {
+    ...row,
+    commemorative: Array.isArray(row.commemorative) ? row.commemorative : [],
+    images: Array.isArray(row.images) ? row.images.filter((url): url is string => typeof url === 'string' && Boolean(url)) : [],
+    keywords: Array.isArray(row.keywords) ? row.keywords : [],
+    option_name: typeof row.option_name === 'string' && row.option_name.trim() ? row.option_name.trim() : null,
+    variants: normalizeVariants(row.variants),
+  };
+}
+
+
 export async function fetchProducts(includeInactive = false): Promise<ProductRow[]> {
   let query = supabase.from('products').select('*').order('created_at', { ascending: false });
   if (!includeInactive) query = query.eq('is_active', true);
   const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((row) => normalizeProduct(row as ProductRow));
 }
 
 export async function fetchProduct(id: string): Promise<ProductRow | null> {
@@ -42,7 +73,7 @@ export async function fetchProduct(id: string): Promise<ProductRow | null> {
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  return data ? normalizeProduct(data as ProductRow) : null;
 }
 
 export async function createProduct(p: Omit<ProductRow, 'id' | 'created_at' | 'updated_at'>): Promise<ProductRow> {
@@ -52,7 +83,7 @@ export async function createProduct(p: Omit<ProductRow, 'id' | 'created_at' | 'u
     .select()
     .single();
   if (error) throw error;
-  return data;
+  return normalizeProduct(data as ProductRow);
 }
 
 export async function updateProduct(id: string, p: Partial<ProductRow>): Promise<ProductRow> {
@@ -63,7 +94,7 @@ export async function updateProduct(id: string, p: Partial<ProductRow>): Promise
     .select()
     .single();
   if (error) throw error;
-  return data;
+  return normalizeProduct(data as ProductRow);
 }
 
 export async function deleteProduct(id: string): Promise<void> {

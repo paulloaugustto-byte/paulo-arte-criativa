@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-route
 import { useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { StoreProvider } from '@/context/StoreContext';
+import { SiteSettingsProvider } from '@/context/SiteSettingsContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -16,6 +17,7 @@ import FAQ from '@/pages/FAQ';
 import Contact from '@/pages/Contact';
 import Favorites from '@/pages/Favorites';
 import Cart from '@/pages/Cart';
+import OrderReview from '@/pages/OrderReview';
 import Login from '@/pages/Login';
 import AdminPanel from '@/pages/AdminPanel';
 
@@ -44,8 +46,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <StoreProvider>
-          <BrowserRouter>
+        <SiteSettingsProvider>
+          <StoreProvider>
+            <BrowserRouter>
             <ScrollToTop />
             <div className="flex min-h-screen flex-col">
               <Navbar />
@@ -61,16 +64,19 @@ export default function App() {
                   <Route path="/contato" element={<Contact />} />
                   <Route path="/favoritos" element={<Favorites />} />
                   <Route path="/carrinho" element={<Cart />} />
+                  <Route path="/revisar-pedido" element={<OrderReview />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin" element={<Login />} />
                   <Route path="/admin/painel" element={<ProtectedAdmin />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
               <Footer />
               <WhatsAppFloat />
             </div>
-          </BrowserRouter>
-        </StoreProvider>
+            </BrowserRouter>
+          </StoreProvider>
+        </SiteSettingsProvider>
       </AuthProvider>
     </ThemeProvider>
   );

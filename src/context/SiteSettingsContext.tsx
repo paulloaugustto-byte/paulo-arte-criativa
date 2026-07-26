@@ -34,6 +34,8 @@ export function SiteSettingsProvider({
     try {
       const data = await fetchSiteSettings();
       setSettings(data);
+    } catch {
+      setSettings({});
     } finally {
       setLoading(false);
     }

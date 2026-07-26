@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
-  LayoutDashboard, Package, Tags, CalendarDays, Image as ImageIcon,
+  LayoutDashboard, Package, Tags, CalendarDays,
   Star, Users, LogOut, Plus, Pencil, Trash2, X, Loader2,
   Ticket, Settings, FileText, ChevronRight,
 } from 'lucide-react';
@@ -19,7 +19,7 @@ import {
   type ProductRow, type CategoryRow, type OrderRow, type CustomerRow,
   type ReviewRow, type CouponRow, type DigitalFileRow,
 } from '@/lib/api';
-import type { Badge } from '@/lib/types';
+import type { Badge, ProductVariant } from '@/lib/types';
 import ImageUploader, { type UploadedImage } from '@/components/ImageUploader';
 
 type Tab = 'dashboard' | 'products' | 'categories' | 'dates' | 'orders' | 'reviews' | 'coupons' | 'digital' | 'settings';
@@ -79,18 +79,37 @@ export default function AdminPanel() {
 
   const handleProductSave = async (data: ProductFormData) => {
     try {
+      const normalizedVariants = data.has_variants
+        ? data.variants
+            .map((variant) => ({ ...variant, name: variant.name.trim(), price: Number(variant.price), is_active: variant.is_active !== false }))
+            .filter((variant) => variant.name && Number.isFinite(variant.price) && variant.price >= 0)
+        : [];
+
+      if (data.has_variants) {
+        if (!data.option_name.trim()) throw new Error('Informe o nome da opção, como Tamanho ou Modelo.');
+        if (normalizedVariants.length === 0) throw new Error('Adicione pelo menos uma opção válida.');
+        const duplicateNames = normalizedVariants.map((variant) => variant.name.toLocaleLowerCase('pt-BR'));
+        if (new Set(duplicateNames).size !== duplicateNames.length) throw new Error('Existem opções com nomes repetidos.');
+      }
+
+      const basePrice = normalizedVariants.length
+        ? Math.min(...normalizedVariants.filter((variant) => variant.is_active !== false).map((variant) => variant.price))
+        : Number(data.price);
+
       const payload = {
         name: data.name,
         description: data.description,
         category: data.category,
         commemorative: data.commemorative,
-        price: data.price,
+        price: Number.isFinite(basePrice) ? basePrice : 0,
         original_price: data.original_price || null,
         images: data.images.map((img) => img.url),
         featured: data.badge === 'destaque',
         badge: data.badge,
         is_active: data.is_active,
         keywords: data.keywords,
+        option_name: data.has_variants ? data.option_name.trim() || 'Opção' : null,
+        variants: normalizedVariants,
       };
       if (editingProduct) {
         await updateProduct(editingProduct.id, payload);
@@ -182,7 +201,6 @@ export default function AdminPanel() {
               {tab === 'products' && (
                 <ProductsTab
                   products={productList}
-                  categories={categories}
                   onNew={() => { setEditingProduct(null); setShowProductForm(true); }}
                   onEdit={(p) => { setEditingProduct(p); setShowProductForm(true); }}
                   onDelete={handleDeleteProduct}
@@ -242,11 +260,13 @@ interface ProductFormData {
   badge: Badge;
   is_active: boolean;
   keywords: string[];
+  has_variants: boolean;
+  option_name: string;
+  variants: ProductVariant[];
 }
 
-function ProductsTab({ products, categories, onNew, onEdit, onDelete }: {
+function ProductsTab({ products, onNew, onEdit, onDelete }: {
   products: ProductRow[];
-  categories: CategoryRow[];
   onNew: () => void;
   onEdit: (p: ProductRow) => void;
   onDelete: (id: string) => void;
@@ -274,7 +294,7 @@ function ProductsTab({ products, categories, onNew, onEdit, onDelete }: {
                 )}
               </div>
               <p className="text-sm text-brand-400">
-                {p.category} · R$ {p.price.toFixed(2)}
+                {p.category} · {p.variants?.length ? `${p.variants.length} opções · a partir de R$ ${Math.min(...p.variants.map((variant) => variant.price)).toFixed(2)}` : `R$ ${p.price.toFixed(2)}`} 
                 {p.original_price && ` (era R$ ${p.original_price.toFixed(2)})`}
               </p>
             </div>
@@ -320,6 +340,9 @@ function ProductForm({ product, categories, onSave, onClose }: {
     badge: product?.badge ?? null,
     is_active: product?.is_active ?? true,
     keywords: product?.keywords ?? [],
+    has_variants: Boolean(product?.variants?.length),
+    option_name: product?.option_name ?? 'Tamanho',
+    variants: product?.variants ?? [],
   });
   const [keywordInput, setKeywordInput] = useState('');
   const tempId = product?.id ?? `temp-${Date.now()}`;
@@ -379,9 +402,89 @@ function ProductForm({ product, categories, onSave, onClose }: {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-brand-600">Preço (R$)</label>
-              <input type="number" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) })} className="input" />
+              <label className="mb-1.5 block text-sm font-medium text-brand-600">{form.has_variants ? 'Preço base (calculado pelas opções)' : 'Preço (R$)'}</label>
+              <input type="number" min="0" step="0.01" required disabled={form.has_variants} value={form.has_variants && form.variants.length ? Math.min(...form.variants.map((variant) => Number(variant.price) || 0)) : form.price} onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) })} className="input" />
             </div>
+          </div>
+
+          {/* PRODUCT OPTIONS / VARIANTS */}
+          <div className="rounded-3xl border border-nude-200 bg-nude-50 p-4">
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={form.has_variants}
+                onChange={(e) => setForm((current) => ({ ...current, has_variants: e.target.checked, variants: e.target.checked && current.variants.length === 0 ? [{ id: crypto.randomUUID(), name: '', price: current.price, is_active: true }] : current.variants }))}
+                className="h-5 w-5 rounded border-nude-300 text-rose-500 focus:ring-rose-400"
+              />
+              <span className="font-medium text-brand-700">Este produto possui opções com preços diferentes</span>
+            </label>
+
+            {form.has_variants && (
+              <div className="mt-4 space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-brand-600">Nome da opção</label>
+                  <input
+                    required={form.has_variants}
+                    value={form.option_name}
+                    onChange={(e) => setForm({ ...form, option_name: e.target.value })}
+                    className="input"
+                    placeholder="Ex.: Tamanho, Modelo, Capacidade"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  {form.variants.map((variant, index) => (
+                    <div key={variant.id} className="grid gap-2 sm:grid-cols-[1fr_140px_auto]">
+                      <input
+                        required
+                        value={variant.name}
+                        onChange={(e) => setForm((current) => ({
+                          ...current,
+                          variants: current.variants.map((item, itemIndex) => itemIndex === index ? { ...item, name: e.target.value } : item),
+                        }))}
+                        className="input"
+                        placeholder="Ex.: Pequena"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                        value={variant.price}
+                        onChange={(e) => setForm((current) => ({
+                          ...current,
+                          variants: current.variants.map((item, itemIndex) => itemIndex === index ? { ...item, price: Number(e.target.value) } : item),
+                        }))}
+                        className="input"
+                        aria-label={`Preço da opção ${variant.name || index + 1}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setForm((current) => ({ ...current, variants: current.variants.filter((_, itemIndex) => itemIndex !== index) }))}
+                        className="rounded-2xl p-3 text-rose-500 hover:bg-rose-100"
+                        aria-label="Remover opção"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setForm((current) => ({
+                    ...current,
+                    variants: [...current.variants, { id: crypto.randomUUID(), name: '', price: current.price, is_active: true }],
+                  }))}
+                  className="btn-outline"
+                >
+                  <Plus className="h-4 w-4" /> Adicionar opção
+                </button>
+                {form.variants.length === 0 && (
+                  <p className="text-sm text-rose-600">Adicione pelo menos uma opção antes de salvar.</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ORIGINAL PRICE (for promo) */}
@@ -475,7 +578,7 @@ function ProductForm({ product, categories, onSave, onClose }: {
             </span>
           </label>
 
-          <button type="submit" className="btn-rose w-full">Salvar produto</button>
+          <button type="submit" disabled={form.has_variants && (form.variants.length === 0 || !form.option_name.trim())} className="btn-rose w-full disabled:cursor-not-allowed disabled:opacity-50">Salvar produto</button>
         </form>
       </div>
     </div>

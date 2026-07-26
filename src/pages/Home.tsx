@@ -24,7 +24,7 @@ import DecorativeBg from '@/components/DecorativeBg';
 import { fetchProducts, fetchReviews, type ProductRow, type ReviewRow } from '@/lib/api';
 import type { StoreProduct } from '@/lib/types';
 
-const fallbackImage = 'https://images.pexels.com/photos/4198104/pexels-4198104.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop';
+const fallbackImage = 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=1200&q=80';
 
 const px = (id: number, w = 600, h = 600) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}&h=${h}&fit=crop`;

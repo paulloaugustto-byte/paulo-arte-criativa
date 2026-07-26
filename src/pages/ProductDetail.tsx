@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Heart, Loader2, MessageCircle, Minus, Plus, ShoppingBag, ZoomIn } from 'lucide-react';
-import { whatsappLink } from '@/data/catalog';
 import { useStore } from '@/context/StoreContext';
 import ProductCard from '@/components/ProductCard';
 import { fetchProduct, fetchProducts, type ProductRow } from '@/lib/api';
-import type { StoreProduct } from '@/lib/types';
+import type { ProductVariant, StoreProduct } from '@/lib/types';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<ProductRow | null>(null);
   const [allProducts, setAllProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState('');
   const { isFavorite, toggleFavorite, addToCart } = useStore();
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function ProductDetail() {
     setLoading(true);
     setActive(0);
     setQty(1);
+    setSelectedVariantId('');
     Promise.all([fetchProduct(id), fetchProducts()])
       .then(([p, all]) => {
         setProduct(p);
@@ -50,6 +52,12 @@ export default function ProductDetail() {
   }
 
   const storeProduct: StoreProduct = product;
+  const activeVariants = (product.variants ?? []).filter((variant) => variant.is_active !== false);
+  const selectedVariant: ProductVariant | null =
+    activeVariants.find((variant) => variant.id === selectedVariantId) ?? null;
+  const minimumVariantPrice = activeVariants.length ? Math.min(...activeVariants.map((variant) => variant.price)) : product.price;
+  const displayedPrice = selectedVariant?.price ?? minimumVariantPrice;
+  const requiresVariant = activeVariants.length > 0;
   const related = allProducts
     .filter((p) => p.id !== product.id && p.category === product.category)
     .slice(0, 4);
@@ -74,7 +82,7 @@ export default function ProductDetail() {
             onClick={() => setZoom(true)}
           >
             <img
-              src={product.images[active]}
+              src={product.images[active] || '/placeholder-product.svg'}
               alt={product.name}
               className="aspect-square w-full object-cover"
             />
@@ -117,8 +125,36 @@ export default function ProductDetail() {
           </div>
 
           <p className="mt-6 font-display text-4xl font-semibold text-brand-700">
-            R$ {product.price.toFixed(2).replace('.', ',')}
+            {requiresVariant && !selectedVariant ? 'A partir de ' : ''}R$ {displayedPrice.toFixed(2).replace('.', ',')}
           </p>
+
+          {requiresVariant && (
+            <div className="mt-6">
+              <label className="mb-2 block text-sm font-semibold text-brand-700">
+                Escolha {product.option_name?.toLowerCase() || 'uma opção'}
+              </label>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {activeVariants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    onClick={() => setSelectedVariantId(variant.id)}
+                    className={`rounded-2xl border px-4 py-3 text-left transition-all ${
+                      selectedVariantId === variant.id
+                        ? 'border-rose-500 bg-rose-50 text-rose-700 ring-2 ring-rose-100'
+                        : 'border-nude-300 text-brand-600 hover:border-rose-300'
+                    }`}
+                  >
+                    <span className="block font-medium">{variant.name}</span>
+                    <span className="text-sm">R$ {variant.price.toFixed(2).replace('.', ',')}</span>
+                  </button>
+                ))}
+              </div>
+              {!selectedVariant && (
+                <p className="mt-2 text-sm text-rose-600">Selecione uma opção antes de adicionar ao carrinho.</p>
+              )}
+            </div>
+          )}
 
           <div className="mt-6 flex items-center gap-4">
             <div className="flex items-center rounded-full border border-nude-300">
@@ -152,18 +188,31 @@ export default function ProductDetail() {
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <a
-              href={whatsappLink(`Olá! Tenho interesse no produto ${product.name} (quantidade: ${qty}).`)}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-rose flex-1"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Solicitar pelo WhatsApp
-            </a>
+            {requiresVariant && !selectedVariant ? (
+              <button type="button" disabled className="btn-rose flex-1 cursor-not-allowed opacity-50">
+                <MessageCircle className="h-4 w-4" />
+                Escolha uma opção
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  addToCart(storeProduct, qty, selectedVariant);
+                  navigate('/revisar-pedido');
+                }}
+                className="btn-rose flex-1"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Revisar e solicitar
+              </button>
+            )}
             <button
-              onClick={() => addToCart(storeProduct, qty)}
-              className="btn-primary flex-1"
+              onClick={() => {
+                if (requiresVariant && !selectedVariant) return;
+                addToCart(storeProduct, qty, selectedVariant);
+              }}
+              disabled={requiresVariant && !selectedVariant}
+              className="btn-primary flex-1 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ShoppingBag className="h-4 w-4" />
               Adicionar ao carrinho
@@ -194,7 +243,7 @@ export default function ProductDetail() {
           <motion.img
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            src={product.images[active]}
+            src={product.images[active] || '/placeholder-product.svg'}
             alt={product.name}
             className="max-h-full max-w-full rounded-3xl object-contain"
           />

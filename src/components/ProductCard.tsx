@@ -25,6 +25,10 @@ export default function ProductCard({ product }: { product: StoreProduct }) {
   const { isFavorite, toggleFavorite, addToCart } = useStore();
   const fav = isFavorite(product.id);
   const badge = product.badge ?? null;
+  const activeVariants = (product.variants ?? []).filter((variant) => variant.is_active !== false);
+  const minimumPrice = activeVariants.length
+    ? Math.min(...activeVariants.map((variant) => variant.price))
+    : product.price;
 
   return (
     <motion.article
@@ -37,7 +41,7 @@ export default function ProductCard({ product }: { product: StoreProduct }) {
       <div className="relative aspect-square overflow-hidden bg-nude-100">
         <Link to={`/produto/${product.id}`}>
           <img
-            src={product.images[0]}
+            src={product.images[0] || '/placeholder-product.svg'}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -91,7 +95,8 @@ export default function ProductCard({ product }: { product: StoreProduct }) {
 
         <div className="mt-auto pt-4">
           <span className="font-display text-2xl font-semibold text-brand-700">
-            R$ {product.price.toFixed(2).replace('.', ',')}
+            {activeVariants.length > 0 && <span className="mr-1 text-sm font-normal text-brand-400">A partir de</span>}
+            R$ {minimumPrice.toFixed(2).replace('.', ',')}
           </span>
         </div>
 
@@ -105,13 +110,23 @@ export default function ProductCard({ product }: { product: StoreProduct }) {
             <MessageCircle className="h-4 w-4" />
             WhatsApp
           </a>
-          <button
-            onClick={() => addToCart(product)}
-            className="btn-outline px-4"
-            aria-label="Adicionar ao carrinho"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
+          {activeVariants.length > 0 ? (
+            <Link
+              to={`/produto/${product.id}`}
+              className="btn-outline px-4"
+              aria-label="Escolher opção do produto"
+            >
+              <Plus className="h-4 w-4" />
+            </Link>
+          ) : (
+            <button
+              onClick={() => addToCart(product)}
+              className="btn-outline px-4"
+              aria-label="Adicionar ao carrinho"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </motion.article>

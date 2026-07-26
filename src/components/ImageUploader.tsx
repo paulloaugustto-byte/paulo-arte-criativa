@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { Upload, X, GripVertical, Star, Loader2, ImagePlus } from 'lucide-react';
+import { X, GripVertical, Star, Loader2, ImagePlus } from 'lucide-react';
 import { uploadProductImage, deleteStorageImage } from '@/lib/api';
 
 export interface UploadedImage {

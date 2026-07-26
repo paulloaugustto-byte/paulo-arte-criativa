@@ -1,5 +1,12 @@
 export type Badge = 'destaque' | 'mais_vendido' | 'novo' | 'promocao' | null;
 
+export interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+  is_active?: boolean;
+}
+
 export interface StoreProduct {
   id: string;
   name: string;
@@ -14,6 +21,8 @@ export interface StoreProduct {
   is_active?: boolean;
   sales_count?: number;
   keywords?: string[];
+  option_name?: string | null;
+  variants?: ProductVariant[];
 }
 
 export interface ProductRow {
@@ -30,6 +39,8 @@ export interface ProductRow {
   is_active: boolean;
   sales_count: number;
   keywords: string[];
+  option_name: string | null;
+  variants: ProductVariant[];
   created_at: string;
   updated_at: string;
 }
