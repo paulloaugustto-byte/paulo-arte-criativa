@@ -79,7 +79,7 @@ export default function Footer() {
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-rose-500" />
               <a href={whatsappLink('Olá!')} target="_blank" rel="noreferrer" className="transition-colors hover:text-rose-500">
-                (11) 99999-9999
+                (65) 99802-2115
               </a>
             </li>
             <li className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-2">
               <MapPin className="h-4 w-4 text-rose-500" />
-              <span>São Paulo, SP — Entrega para todo o Brasil</span>
+              <span>Cuiabá - MT — Entrega para todo o Brasil</span>
             </li>
           </ul>
         </div>
