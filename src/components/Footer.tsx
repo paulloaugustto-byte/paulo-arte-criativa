@@ -6,14 +6,47 @@ export default function Footer() {
   return (
     <footer className="relative mt-24 overflow-hidden border-t border-nude-200/60 bg-nude-100">
       {/* Decorative leaves */}
-      <svg className="pointer-events-none absolute -right-10 -top-8 h-32 w-32 text-nude-300/40" viewBox="0 0 100 100" fill="none">
-        <path d="M50 10 Q30 30 30 50 Q30 70 50 90 Q70 70 70 50 Q70 30 50 10 Z" stroke="currentColor" strokeWidth="1.5" />
+      <svg
+        className="pointer-events-none absolute -right-10 -top-8 h-32 w-32 text-nude-300/40"
+        viewBox="0 0 100 100"
+        fill="none"
+      >
+        <path
+          d="M50 10 Q30 30 30 50 Q30 70 50 90 Q70 70 70 50 Q70 30 50 10 Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
         <path d="M50 10 L50 90" stroke="currentColor" strokeWidth="1" />
       </svg>
-      <svg className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 text-rose-200/30" viewBox="0 0 100 100" fill="none">
-        <path d="M20 80 Q40 60 50 40 Q60 20 80 20" stroke="currentColor" strokeWidth="1.5" />
-        <ellipse cx="35" cy="65" rx="6" ry="3" fill="currentColor" opacity="0.5" transform="rotate(-30 35 65)" />
-        <ellipse cx="55" cy="45" rx="6" ry="3" fill="currentColor" opacity="0.5" transform="rotate(-30 55 45)" />
+
+      <svg
+        className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 text-rose-200/30"
+        viewBox="0 0 100 100"
+        fill="none"
+      >
+        <path
+          d="M20 80 Q40 60 50 40 Q60 20 80 20"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <ellipse
+          cx="35"
+          cy="65"
+          rx="6"
+          ry="3"
+          fill="currentColor"
+          opacity="0.5"
+          transform="rotate(-30 35 65)"
+        />
+        <ellipse
+          cx="55"
+          cy="45"
+          rx="6"
+          ry="3"
+          fill="currentColor"
+          opacity="0.5"
+          transform="rotate(-30 55 45)"
+        />
       </svg>
 
       <div className="container-page relative grid gap-12 py-16 md:grid-cols-4">
@@ -22,17 +55,20 @@ export default function Footer() {
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-rose-400 font-display text-xl font-semibold text-white shadow-soft">
               P
             </span>
+
             <span className="font-display text-lg font-semibold text-brand-700">
               Paulo Arte Criativa
             </span>
           </div>
+
           <p className="mt-4 text-sm leading-relaxed text-brand-500">
             Transformando papel em emoções. Personalizados exclusivos com acabamento de alta
             qualidade.
           </p>
+
           <div className="mt-6 flex gap-3">
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/pauloartecriativa/"
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram"
@@ -40,6 +76,7 @@ export default function Footer() {
             >
               <Instagram className="h-5 w-5" />
             </a>
+
             <a
               href="https://facebook.com"
               target="_blank"
@@ -49,6 +86,7 @@ export default function Footer() {
             >
               <Facebook className="h-5 w-5" />
             </a>
+
             <a
               href={whatsappLink('Olá! Vim pelo site e gostaria de mais informações.')}
               target="_blank"
@@ -62,32 +100,97 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display text-base font-semibold text-brand-700">Navegação</h4>
+          <h4 className="font-display text-base font-semibold text-brand-700">
+            Navegação
+          </h4>
+
           <ul className="mt-4 space-y-2.5 text-sm text-brand-500">
-            <li><Link to="/catalogo" className="transition-colors hover:text-rose-500">Catálogo</Link></li>
-            <li><Link to="/arquivos-digitais" className="transition-colors hover:text-rose-500">Arquivos Digitais</Link></li>
-            <li><Link to="/galeria" className="transition-colors hover:text-rose-500">Galeria</Link></li>
-            <li><Link to="/sobre" className="transition-colors hover:text-rose-500">Quem Somos</Link></li>
-            <li><Link to="/faq" className="transition-colors hover:text-rose-500">Dúvidas Frequentes</Link></li>
-            <li><Link to="/contato" className="transition-colors hover:text-rose-500">Contato</Link></li>
+            <li>
+              <Link
+                to="/catalogo"
+                className="transition-colors hover:text-rose-500"
+              >
+                Catálogo
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/arquivos-digitais"
+                className="transition-colors hover:text-rose-500"
+              >
+                Arquivos Digitais
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/galeria"
+                className="transition-colors hover:text-rose-500"
+              >
+                Galeria
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/sobre"
+                className="transition-colors hover:text-rose-500"
+              >
+                Quem Somos
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/faq"
+                className="transition-colors hover:text-rose-500"
+              >
+                Dúvidas Frequentes
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/contato"
+                className="transition-colors hover:text-rose-500"
+              >
+                Contato
+              </Link>
+            </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-display text-base font-semibold text-brand-700">Contato</h4>
+          <h4 className="font-display text-base font-semibold text-brand-700">
+            Contato
+          </h4>
+
           <ul className="mt-4 space-y-3 text-sm text-brand-500">
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-rose-500" />
-              <a href={whatsappLink('Olá!')} target="_blank" rel="noreferrer" className="transition-colors hover:text-rose-500">
+
+              <a
+                href={whatsappLink('Olá!')}
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors hover:text-rose-500"
+              >
                 (65) 99802-2115
               </a>
             </li>
+
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-rose-500" />
-              <a href="mailto:contato@pauloartecriativa.com.br" className="transition-colors hover:text-rose-500">
+
+              <a
+                href="mailto:contato@pauloartecriativa.com.br"
+                className="transition-colors hover:text-rose-500"
+              >
                 contato@pauloartecriativa.com.br
               </a>
             </li>
+
             <li className="flex items-start gap-2">
               <MapPin className="h-4 w-4 text-rose-500" />
               <span>Cuiabá - MT — Entrega para todo o Brasil</span>
@@ -96,10 +199,14 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display text-base font-semibold text-brand-700">Newsletter</h4>
+          <h4 className="font-display text-base font-semibold text-brand-700">
+            Newsletter
+          </h4>
+
           <p className="mt-4 text-sm text-brand-500">
             Receba novidades e promoções exclusivas.
           </p>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -113,6 +220,7 @@ export default function Footer() {
               placeholder="Seu e-mail"
               className="input flex-1"
             />
+
             <button type="submit" className="btn-rose shrink-0">
               Assinar
             </button>
@@ -122,8 +230,13 @@ export default function Footer() {
 
       <div className="border-t border-nude-200/60">
         <div className="container-page flex flex-col items-center justify-between gap-2 py-6 text-xs text-brand-400 sm:flex-row">
-          <p>© {new Date().getFullYear()} Paulo Arte Criativa. Todos os direitos reservados.</p>
-          <p className="font-script text-sm text-rose-400">Feito com carinho no Brasil</p>
+          <p>
+            © {new Date().getFullYear()} Paulo Arte Criativa. Todos os direitos reservados.
+          </p>
+
+          <p className="font-script text-sm text-rose-400">
+            Feito com carinho no Brasil
+          </p>
         </div>
       </div>
     </footer>
