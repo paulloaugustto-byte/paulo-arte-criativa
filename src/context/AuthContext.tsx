@@ -13,9 +13,11 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
-  signOut: () => Promise<void>;
+  signIn: (
+    email: string,
+    password: string,
+  ) => Promise<{ error: string | null }>;
+  signOut: () => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -25,41 +27,97 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(({ data }) => setSession(data.session))
-      .catch(() => setSession(null))
-      .finally(() => setLoading(false));
+    let active = true;
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
+    const loadSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+
+        if (active) {
+          setSession(data.session);
+        }
+      } catch {
+        if (active) {
+          setSession(null);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (active) {
+        setSession(newSession);
+        setLoading(false);
+      }
     });
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const value = useMemo<AuthContextValue>(() => ({
-    session,
-    user: session?.user ?? null,
-    loading,
-    signIn: async (email, password) => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return { error: error?.message ?? null };
-    },
-    signUp: async (email, password) => {
-      const { error } = await supabase.auth.signUp({ email, password });
-      return { error: error?.message ?? null };
-    },
-    signOut: async () => {
-      await supabase.auth.signOut();
-    },
-  }), [session, loading]);
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      session,
+      user: session?.user ?? null,
+      loading,
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+      signIn: async (email, password) => {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        return {
+          error: error?.message ?? null,
+        };
+      },
+
+      signOut: async () => {
+        // Remove o usuário da tela imediatamente.
+        setSession(null);
+
+        try {
+          // Não bloqueia a interface esperando o Supabase responder.
+          void supabase.auth.signOut({ scope: 'local' });
+
+          return {
+            error: null,
+          };
+        } catch (error) {
+          return {
+            error:
+              error instanceof Error
+                ? error.message
+                : 'Não foi possível encerrar a sessão.',
+          };
+        }
+      },
+    }),
+    [session, loading],
+  );
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+
+  return context;
 }

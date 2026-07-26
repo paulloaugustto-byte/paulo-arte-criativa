@@ -109,15 +109,17 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-nude-200/60 bg-cream-100/85 backdrop-blur-xl">
       <nav className="container-page flex h-20 items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-rose-400 font-display text-xl font-semibold text-white shadow-soft transition-transform hover:scale-105">
-            P
-          </span>
+          <img
+            src="/logo-paulo-arte-criativa.png"
+            alt="Paulo Arte Criativa"
+            className="h-14 w-14 shrink-0 rounded-full object-contain transition-transform hover:scale-105 sm:h-16 sm:w-16"
+          />
 
           <span className="hidden flex-col leading-tight sm:flex">
             <span className="font-display text-lg font-semibold text-brand-700">
               Paulo Arte Criativa
             </span>
-            <span className="font-script text-sm text-rose-500">
+            <span className="font-script text-lg leading-none text-rose-500">
               Transformando papel em emoções
             </span>
           </span>
@@ -274,9 +276,11 @@ export default function Navbar() {
                 aria-haspopup="menu"
                 className="flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-600"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 font-display text-xs font-semibold text-white">
-                  P
-                </span>
+                <img
+                  src="/logo-paulo-arte-criativa.png"
+                  alt=""
+                  className="h-7 w-7 rounded-full bg-white object-cover"
+                />
                 <span className="max-w-28 truncate">{displayName}</span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
@@ -291,9 +295,11 @@ export default function Navbar() {
                   className="absolute right-0 mt-3 w-64 overflow-hidden rounded-2xl border border-nude-200 bg-white p-2 shadow-xl"
                 >
                   <div className="flex items-center gap-3 border-b border-nude-100 px-3 py-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-rose-400 font-display text-lg font-semibold text-white shadow-soft">
-                      P
-                    </span>
+                    <img
+                      src="/logo-paulo-arte-criativa.png"
+                      alt=""
+                      className="h-11 w-11 shrink-0 rounded-full object-cover shadow-soft"
+                    />
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-brand-700">
@@ -458,9 +464,11 @@ export default function Navbar() {
             {user && (
               <div className="mt-3 border-t border-nude-200 pt-3">
                 <div className="flex items-center gap-3 px-4 pb-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-rose-400 font-display text-base font-semibold text-white shadow-soft">
-                    P
-                  </span>
+                  <img
+                    src="/logo-paulo-arte-criativa.png"
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-full object-cover shadow-soft"
+                  />
 
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-brand-700">
