@@ -8,6 +8,7 @@ import {
   Search,
   ShoppingBag,
   Store,
+  User,
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -91,6 +92,7 @@ export default function Navbar() {
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
+
     navigate(`/catalogo?q=${encodeURIComponent(query.trim())}`);
     setSearch(false);
     setQuery('');
@@ -110,6 +112,7 @@ export default function Navbar() {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-rose-400 font-display text-xl font-semibold text-white shadow-soft transition-transform hover:scale-105">
             P
           </span>
+
           <span className="hidden flex-col leading-tight sm:flex">
             <span className="font-display text-lg font-semibold text-brand-700">
               Paulo Arte Criativa
@@ -196,10 +199,10 @@ export default function Navbar() {
             )}
           </div>
 
-          {links.slice(1).map((l) => (
+          {links.slice(1).map((link) => (
             <NavLink
-              key={l.to}
-              to={l.to}
+              key={link.to}
+              to={link.to}
               className={({ isActive }) =>
                 `rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
                   isActive
@@ -208,14 +211,15 @@ export default function Navbar() {
                 }`
               }
             >
-              {l.label}
+              {link.label}
             </NavLink>
           ))}
         </div>
 
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setSearch((s) => !s)}
+            type="button"
+            onClick={() => setSearch((value) => !value)}
             aria-label="Buscar"
             className="rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100"
           >
@@ -228,6 +232,7 @@ export default function Navbar() {
             className="relative rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100"
           >
             <Heart className="h-5 w-5" />
+
             {favorites.length > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
                 {favorites.length}
@@ -241,12 +246,24 @@ export default function Navbar() {
             className="relative rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100"
           >
             <ShoppingBag className="h-5 w-5" />
+
             {cartCount > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
                 {cartCount}
               </span>
             )}
           </Link>
+
+          {!user && (
+            <Link
+              to="/login"
+              aria-label="Entrar"
+              className="hidden items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-600 lg:flex"
+            >
+              <User className="h-5 w-5" />
+              Entrar
+            </Link>
+          )}
 
           {user && (
             <div ref={adminMenuRef} className="relative hidden lg:block">
@@ -277,6 +294,7 @@ export default function Navbar() {
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-rose-400 font-display text-lg font-semibold text-white shadow-soft">
                       P
                     </span>
+
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-brand-700">
                         {displayName}
@@ -322,7 +340,8 @@ export default function Navbar() {
           )}
 
           <button
-            onClick={() => setOpen((o) => !o)}
+            type="button"
+            onClick={() => setOpen((value) => !value)}
             aria-label="Menu"
             className="rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100 lg:hidden"
           >
@@ -339,7 +358,7 @@ export default function Navbar() {
               <input
                 autoFocus
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(event) => setQuery(event.target.value)}
                 placeholder="Buscar por produto, categoria ou data comemorativa..."
                 className="input pl-12"
               />
@@ -408,10 +427,10 @@ export default function Navbar() {
               </div>
             )}
 
-            {links.slice(1).map((l) => (
+            {links.slice(1).map((link) => (
               <NavLink
-                key={l.to}
-                to={l.to}
+                key={link.to}
+                to={link.to}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
@@ -421,9 +440,20 @@ export default function Navbar() {
                   }`
                 }
               >
-                {l.label}
+                {link.label}
               </NavLink>
             ))}
+
+            {!user && (
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="mt-3 flex items-center gap-2 rounded-2xl bg-brand-500 px-4 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-600"
+              >
+                <User className="h-5 w-5" />
+                Entrar
+              </Link>
+            )}
 
             {user && (
               <div className="mt-3 border-t border-nude-200 pt-3">
@@ -431,11 +461,14 @@ export default function Navbar() {
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-rose-400 font-display text-base font-semibold text-white shadow-soft">
                     P
                   </span>
+
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-brand-700">
                       {displayName}
                     </p>
-                    <p className="truncate text-xs text-brand-400">{user.email}</p>
+                    <p className="truncate text-xs text-brand-400">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
 
