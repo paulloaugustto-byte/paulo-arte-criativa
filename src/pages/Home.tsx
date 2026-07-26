@@ -111,7 +111,7 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <DecorativeBg />
-        <div className="container-page grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
+        <div className="container-page grid items-center py-10 lg:grid-cols-2 lg:gap-12 lg:py-24">
           {/* LEFT: TEXT */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -161,7 +161,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="relative mx-auto h-[500px] w-full max-w-lg sm:h-[580px]"
+            className="relative mx-auto hidden h-[580px] w-full max-w-lg lg:block"
           >
             {/* Decorative rings */}
             <div className="absolute inset-6 rounded-[3rem] border-2 border-dashed border-rose-200/40" />

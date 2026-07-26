@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
-import { whatsappLink } from '@/data/catalog';
+import { Instagram, Mail, MapPin, Phone } from 'lucide-react';
+
+const whatsappNumber = '5565998022115';
+
+const whatsappLink = (message: string) =>
+  `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
 export default function Footer() {
   return (
@@ -15,7 +19,11 @@ export default function Footer() {
           stroke="currentColor"
           strokeWidth="1.5"
         />
-        <path d="M50 10 L50 90" stroke="currentColor" strokeWidth="1" />
+        <path
+          d="M50 10 L50 90"
+          stroke="currentColor"
+          strokeWidth="1"
+        />
       </svg>
 
       <svg
@@ -61,6 +69,7 @@ export default function Footer() {
               <span className="font-display text-lg font-semibold text-brand-700">
                 Paulo Arte Criativa
               </span>
+
               <span className="font-script text-lg leading-none text-rose-500">
                 Transformando papel em emoções
               </span>
@@ -74,23 +83,13 @@ export default function Footer() {
 
           <div className="mt-6 flex gap-3">
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/pauloartecriativa/"
               target="_blank"
-              rel="noreferrer"
-              aria-label="Instagram"
+              rel="noopener noreferrer"
+              aria-label="Instagram da Paulo Arte Criativa"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-500 shadow-soft transition-all hover:scale-110 hover:bg-rose-100 hover:text-rose-600"
             >
               <Instagram className="h-5 w-5" />
-            </a>
-
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Facebook"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-500 shadow-soft transition-all hover:scale-110 hover:bg-rose-100 hover:text-rose-600"
-            >
-              <Facebook className="h-5 w-5" />
             </a>
 
             <a
@@ -98,8 +97,8 @@ export default function Footer() {
                 'Olá! Vim pelo site e gostaria de mais informações.',
               )}
               target="_blank"
-              rel="noreferrer"
-              aria-label="WhatsApp"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp da Paulo Arte Criativa"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-500 shadow-soft transition-all hover:scale-110 hover:bg-rose-100 hover:text-rose-600"
             >
               <Phone className="h-5 w-5" />
@@ -111,6 +110,7 @@ export default function Footer() {
           <h4 className="font-display text-base font-semibold text-brand-700">
             Navegação
           </h4>
+
           <ul className="mt-4 space-y-2.5 text-sm text-brand-500">
             <li>
               <Link
@@ -120,6 +120,7 @@ export default function Footer() {
                 Catálogo
               </Link>
             </li>
+
             <li>
               <Link
                 to="/arquivos-digitais"
@@ -128,6 +129,7 @@ export default function Footer() {
                 Arquivos Digitais
               </Link>
             </li>
+
             <li>
               <Link
                 to="/galeria"
@@ -136,6 +138,7 @@ export default function Footer() {
                 Galeria
               </Link>
             </li>
+
             <li>
               <Link
                 to="/sobre"
@@ -144,6 +147,7 @@ export default function Footer() {
                 Quem Somos
               </Link>
             </li>
+
             <li>
               <Link
                 to="/faq"
@@ -152,6 +156,7 @@ export default function Footer() {
                 Dúvidas Frequentes
               </Link>
             </li>
+
             <li>
               <Link
                 to="/contato"
@@ -167,30 +172,38 @@ export default function Footer() {
           <h4 className="font-display text-base font-semibold text-brand-700">
             Contato
           </h4>
+
           <ul className="mt-4 space-y-3 text-sm text-brand-500">
             <li className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-rose-500" />
+              <Phone className="h-4 w-4 shrink-0 text-rose-500" />
+
               <a
                 href={whatsappLink('Olá!')}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="transition-colors hover:text-rose-500"
               >
-                (11) 99999-9999
+                (65) 99802-2115
               </a>
             </li>
+
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-rose-500" />
+              <Mail className="h-4 w-4 shrink-0 text-rose-500" />
+
               <a
                 href="mailto:contato@pauloartecriativa.com.br"
-                className="transition-colors hover:text-rose-500"
+                className="break-all transition-colors hover:text-rose-500"
               >
                 contato@pauloartecriativa.com.br
               </a>
             </li>
+
             <li className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-rose-500" />
-              <span>São Paulo, SP — Entrega para todo o Brasil</span>
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+
+              <span>
+                Cuiabá, MT — Entrega para todo o Brasil
+              </span>
             </li>
           </ul>
         </div>
@@ -199,23 +212,30 @@ export default function Footer() {
           <h4 className="font-display text-base font-semibold text-brand-700">
             Newsletter
           </h4>
+
           <p className="mt-4 text-sm text-brand-500">
             Receba novidades e promoções exclusivas.
           </p>
+
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert('Cadastro realizado! Obrigada.');
+            onSubmit={(event) => {
+              event.preventDefault();
+              alert('Cadastro realizado! Obrigado.');
             }}
-            className="mt-4 flex gap-2"
+            className="mt-4 flex flex-col gap-2 sm:flex-row md:flex-col lg:flex-row"
           >
             <input
               type="email"
               required
               placeholder="Seu e-mail"
-              className="input flex-1"
+              aria-label="Seu e-mail"
+              className="input min-w-0 flex-1"
             />
-            <button type="submit" className="btn-rose shrink-0">
+
+            <button
+              type="submit"
+              className="btn-rose shrink-0"
+            >
               Assinar
             </button>
           </form>
@@ -223,11 +243,12 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-nude-200/60">
-        <div className="container-page flex flex-col items-center justify-between gap-2 py-6 text-xs text-brand-400 sm:flex-row">
+        <div className="container-page flex flex-col items-center justify-between gap-2 py-6 text-center text-xs text-brand-400 sm:flex-row sm:text-left">
           <p>
             © {new Date().getFullYear()} Paulo Arte Criativa. Todos os direitos
             reservados.
           </p>
+
           <p className="font-script text-sm text-rose-400">
             Feito com carinho no Brasil
           </p>
