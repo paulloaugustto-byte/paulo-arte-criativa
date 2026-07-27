@@ -145,19 +145,25 @@ export default function Home() {
                 href="https://www.instagram.com/pauloartecriativa/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Abrir Instagram da Paulo Arte Criativa"
-                className="inline-flex items-center gap-2 rounded-xl border border-pink-200 bg-white px-5 py-3 font-semibold text-pink-600 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-pink-50 hover:shadow-md"
+                aria-label="Instagram da Paulo Arte Criativa"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-pink-200"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
-                  fill="currentColor"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="h-5 w-5"
                   aria-hidden="true"
                 >
-                  <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5Zm8.9 1.15a.85.85 0 1 1 0 1.7.85.85 0 0 1 0-1.7ZM12 6.5A5.5 5.5 0 1 1 6.5 12 5.51 5.51 0 0 1 12 6.5Zm0 1.5A4 4 0 1 0 16 12a4.01 4.01 0 0 0-4-4Z" />
+                  <rect width="18" height="18" x="3" y="3" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" />
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
                 </svg>
-                Instagram
+                Siga no Instagram
               </a>
             </div>
 
