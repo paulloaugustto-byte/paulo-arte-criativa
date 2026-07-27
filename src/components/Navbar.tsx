@@ -1,4 +1,9 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  NavLink,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import {
   ChevronDown,
   Heart,
@@ -24,32 +29,61 @@ const links = [
 ];
 
 const productCategories = [
-  { label: 'Sacolas Personalizadas', category: 'Sacolas Personalizadas' },
-  { label: 'Canecas', category: 'Canecas' },
-  { label: 'Topos de Bolo', category: 'Topos de Bolo' },
-  { label: 'Kits Festa', category: 'Kits Presente' },
-  { label: 'Lembrancinhas', category: 'Lembrancinhas' },
-  { label: 'Caixas para Presente', category: 'Caixas para Caneca' },
-  { label: 'Adesivos', category: 'Adesivos' },
+  {
+    label: 'Sacolas Personalizadas',
+    category: 'Sacolas Personalizadas',
+  },
+  {
+    label: 'Canecas',
+    category: 'Canecas',
+  },
+  {
+    label: 'Topos de Bolo',
+    category: 'Topos de Bolo',
+  },
+  {
+    label: 'Kits Festa',
+    category: 'Kits Presente',
+  },
+  {
+    label: 'Lembrancinhas',
+    category: 'Lembrancinhas',
+  },
+  {
+    label: 'Caixas para Presente',
+    category: 'Caixas para Caneca',
+  },
+  {
+    label: 'Adesivos',
+    category: 'Adesivos',
+  },
 ];
 
 export default function Navbar() {
   const { favorites, cartCount } = useStore();
   const { user, signOut } = useAuth();
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(false);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [scrolled, setScrolled] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
+
   const adminMenuRef = useRef<HTMLDivElement>(null);
-  const productsCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const productsCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const openProductsMenu = () => {
     if (productsCloseTimer.current) {
       clearTimeout(productsCloseTimer.current);
     }
+
     setProductsMenuOpen(true);
   };
 
@@ -89,11 +123,54 @@ export default function Navbar() {
     };
   }, []);
 
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  useEffect(() => {
+    return () => {
+      if (productsCloseTimer.current) {
+        clearTimeout(productsCloseTimer.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 24);
+    };
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    setOpen(false);
+    setSearch(false);
+    setMobileProductsOpen(false);
+  }, [location.pathname]);
+
+  const isHome = location.pathname === '/';
+
+  const transparentMobileHeader =
+    isHome && !scrolled && !open && !search;
+
+  const mobileIconClasses = transparentMobileHeader
+    ? 'text-white drop-shadow-[0_1px_4px_rgba(24,46,82,0.45)] hover:bg-white/15 lg:text-brand-600 lg:drop-shadow-none lg:hover:bg-nude-100'
+    : 'text-brand-600 hover:bg-nude-100';
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!query.trim()) {
+      return;
+    }
 
     navigate(`/catalogo?q=${encodeURIComponent(query.trim())}`);
+
     setSearch(false);
     setQuery('');
   };
@@ -101,38 +178,35 @@ export default function Navbar() {
   const handleSignOut = async () => {
     setAdminMenuOpen(false);
     setOpen(false);
+
     await signOut();
+
     navigate('/');
   };
 
+  const closeMobileMenu = () => {
+    setOpen(false);
+    setMobileProductsOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-50 border-b border-nude-200/60 bg-cream-100/85 backdrop-blur-xl">
-      <nav className="container-page flex h-20 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-3">
-          <img
-            src="/logo-paulo-arte-criativa.png"
-            alt="Paulo Arte Criativa"
-            className="h-14 w-14 shrink-0 rounded-full object-contain transition-transform hover:scale-105 sm:h-16 sm:w-16"
-          />
-
-          <span className="hidden flex-col leading-tight sm:flex">
-            <span className="font-display text-lg font-semibold text-brand-700">
-              Paulo Arte Criativa
-            </span>
-            <span className="font-script text-lg leading-none text-rose-500">
-              Transformando papel em emoções
-            </span>
-          </span>
-        </Link>
-
+    <header
+      className={`top-0 z-50 transition-all duration-300 ${
+        transparentMobileHeader
+          ? 'absolute inset-x-0 border-transparent bg-transparent shadow-none backdrop-blur-none lg:sticky lg:border-b lg:border-nude-200/60 lg:bg-white/95 lg:shadow-[0_3px_16px_rgba(24,46,82,0.06)] lg:backdrop-blur-xl'
+          : 'sticky border-b border-nude-200/60 bg-white/95 shadow-[0_3px_16px_rgba(24,46,82,0.06)] backdrop-blur-xl'
+      }`}
+    >
+      <nav className="container-page flex h-16 items-center justify-between gap-4">
+        {/* MENU DESKTOP */}
         <div className="hidden items-center gap-1 lg:flex">
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+              `rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                 isActive
-                  ? 'bg-brand-500 text-white shadow-soft'
+                  ? 'bg-brand-600 text-white shadow-soft'
                   : 'text-brand-600 hover:bg-nude-100 hover:text-brand-700'
               }`
             }
@@ -147,14 +221,17 @@ export default function Navbar() {
           >
             <button
               type="button"
-              onClick={() => setProductsMenuOpen((value) => !value)}
+              onClick={() =>
+                setProductsMenuOpen((value) => !value)
+              }
               aria-expanded={productsMenuOpen}
               aria-haspopup="menu"
-              className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-brand-600 transition-all duration-300 hover:bg-nude-100 hover:text-brand-700"
+              className="flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold text-brand-600 transition-all duration-300 hover:bg-nude-100 hover:text-brand-700"
             >
               Produtos
+
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${
+                className={`h-4 w-4 transition-transform duration-300 ${
                   productsMenuOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -165,12 +242,13 @@ export default function Navbar() {
                 role="menu"
                 onMouseEnter={openProductsMenu}
                 onMouseLeave={closeProductsMenu}
-                className="absolute left-1/2 top-[calc(100%-2px)] z-50 w-72 -translate-x-1/2 rounded-3xl border border-nude-200 bg-white p-3 shadow-xl"
+                className="absolute left-0 top-[calc(100%-2px)] z-50 w-72 rounded-3xl border border-nude-200 bg-white p-3 shadow-xl"
               >
                 <div className="px-3 pb-2 pt-1">
                   <p className="font-display text-lg font-semibold text-brand-700">
                     Produtos
                   </p>
+
                   <p className="mt-1 text-xs text-brand-400">
                     Escolha uma categoria
                   </p>
@@ -180,9 +258,13 @@ export default function Navbar() {
                   {productCategories.map((item) => (
                     <Link
                       key={item.label}
-                      to={`/catalogo?cat=${encodeURIComponent(item.category)}`}
+                      to={`/catalogo?cat=${encodeURIComponent(
+                        item.category,
+                      )}`}
                       role="menuitem"
-                      onClick={() => setProductsMenuOpen(false)}
+                      onClick={() =>
+                        setProductsMenuOpen(false)
+                      }
                       className="block rounded-xl px-3 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100 hover:text-brand-700"
                     >
                       {item.label}
@@ -192,7 +274,9 @@ export default function Navbar() {
 
                 <Link
                   to="/catalogo"
-                  onClick={() => setProductsMenuOpen(false)}
+                  onClick={() =>
+                    setProductsMenuOpen(false)
+                  }
                   className="mt-2 block rounded-xl bg-brand-500 px-3 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-brand-600"
                 >
                   Ver catálogo completo
@@ -206,9 +290,9 @@ export default function Navbar() {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                `rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                   isActive
-                    ? 'bg-brand-500 text-white shadow-soft'
+                    ? 'bg-brand-600 text-white shadow-soft'
                     : 'text-brand-600 hover:bg-nude-100 hover:text-brand-700'
                 }`
               }
@@ -218,12 +302,28 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-1">
+        {/* BOTÃO DO MENU CELULAR */}
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={open}
+          className={`rounded-full p-2.5 transition-colors lg:hidden ${mobileIconClasses}`}
+        >
+          {open ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </button>
+
+        {/* AÇÕES DO LADO DIREITO */}
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           <button
             type="button"
             onClick={() => setSearch((value) => !value)}
             aria-label="Buscar"
-            className="rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100"
+            className={`rounded-full p-2.5 transition-colors ${mobileIconClasses}`}
           >
             <Search className="h-5 w-5" />
           </button>
@@ -231,7 +331,7 @@ export default function Navbar() {
           <Link
             to="/favoritos"
             aria-label="Favoritos"
-            className="relative rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100"
+            className={`relative rounded-full p-2.5 transition-colors ${mobileIconClasses}`}
           >
             <Heart className="h-5 w-5" />
 
@@ -245,7 +345,7 @@ export default function Navbar() {
           <Link
             to="/carrinho"
             aria-label="Carrinho"
-            className="relative rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100"
+            className={`relative rounded-full p-2.5 transition-colors ${mobileIconClasses}`}
           >
             <ShoppingBag className="h-5 w-5" />
 
@@ -260,7 +360,7 @@ export default function Navbar() {
             <Link
               to="/login"
               aria-label="Entrar"
-              className="hidden items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-600 lg:flex"
+              className="hidden items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-700 sm:flex"
             >
               <User className="h-5 w-5" />
               Entrar
@@ -268,22 +368,27 @@ export default function Navbar() {
           )}
 
           {user && (
-            <div ref={adminMenuRef} className="relative hidden lg:block">
+            <div
+              ref={adminMenuRef}
+              className="relative hidden sm:block"
+            >
               <button
                 type="button"
-                onClick={() => setAdminMenuOpen((value) => !value)}
+                onClick={() =>
+                  setAdminMenuOpen((value) => !value)
+                }
                 aria-expanded={adminMenuOpen}
                 aria-haspopup="menu"
-                className="flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-600"
+                className="flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-700"
               >
-                <img
-                  src="/logo-paulo-arte-criativa.png"
-                  alt=""
-                  className="h-7 w-7 rounded-full bg-white object-cover"
-                />
-                <span className="max-w-28 truncate">{displayName}</span>
+                <User className="h-5 w-5" />
+
+                <span className="max-w-28 truncate">
+                  {displayName}
+                </span>
+
                 <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
+                  className={`h-4 w-4 transition-transform duration-300 ${
                     adminMenuOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -294,27 +399,22 @@ export default function Navbar() {
                   role="menu"
                   className="absolute right-0 mt-3 w-64 overflow-hidden rounded-2xl border border-nude-200 bg-white p-2 shadow-xl"
                 >
-                  <div className="flex items-center gap-3 border-b border-nude-100 px-3 py-3">
-                    <img
-                      src="/logo-paulo-arte-criativa.png"
-                      alt=""
-                      className="h-11 w-11 shrink-0 rounded-full object-cover shadow-soft"
-                    />
+                  <div className="border-b border-nude-100 px-3 py-3">
+                    <p className="truncate text-sm font-semibold text-brand-700">
+                      {displayName}
+                    </p>
 
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-brand-700">
-                        {displayName}
-                      </p>
-                      <p className="truncate text-xs text-brand-400">
-                        {user.email}
-                      </p>
-                    </div>
+                    <p className="mt-1 truncate text-xs text-brand-400">
+                      {user.email}
+                    </p>
                   </div>
 
                   <Link
                     to="/admin/painel"
                     role="menuitem"
-                    onClick={() => setAdminMenuOpen(false)}
+                    onClick={() =>
+                      setAdminMenuOpen(false)
+                    }
                     className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
                   >
                     <LayoutDashboard className="h-4 w-4" />
@@ -324,7 +424,9 @@ export default function Navbar() {
                   <Link
                     to="/"
                     role="menuitem"
-                    onClick={() => setAdminMenuOpen(false)}
+                    onClick={() =>
+                      setAdminMenuOpen(false)
+                    }
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
                   >
                     <Store className="h-4 w-4" />
@@ -344,27 +446,25 @@ export default function Navbar() {
               )}
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-label="Menu"
-            className="rounded-full p-2.5 text-brand-500 transition-colors hover:bg-nude-100 lg:hidden"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
       </nav>
 
+      {/* CAMPO DE BUSCA */}
       {search && (
-        <div className="border-t border-nude-200/60 bg-cream-100/95 backdrop-blur">
-          <form onSubmit={submitSearch} className="container-page py-4">
+        <div className="border-t border-nude-200/60 bg-white/95 backdrop-blur">
+          <form
+            onSubmit={submitSearch}
+            className="container-page py-4"
+          >
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-nude-400" />
+
               <input
                 autoFocus
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) =>
+                  setQuery(event.target.value)
+                }
                 placeholder="Buscar por produto, categoria ou data comemorativa..."
                 className="input pl-12"
               />
@@ -373,17 +473,18 @@ export default function Navbar() {
         </div>
       )}
 
+      {/* MENU CELULAR */}
       {open && (
-        <div className="border-t border-nude-200/60 bg-cream-100 lg:hidden">
-          <div className="container-page flex flex-col gap-1 py-4">
+        <div className="border-t border-nude-200/60 bg-white lg:hidden">
+          <div className="container-page flex max-h-[calc(100vh-4rem)] flex-col gap-1 overflow-y-auto py-4">
             <NavLink
               to="/"
               end
-              onClick={() => setOpen(false)}
+              onClick={closeMobileMenu}
               className={({ isActive }) =>
                 `rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-brand-500 text-white'
+                    ? 'bg-brand-600 text-white'
                     : 'text-brand-600 hover:bg-nude-100'
                 }`
               }
@@ -393,12 +494,15 @@ export default function Navbar() {
 
             <button
               type="button"
-              onClick={() => setMobileProductsOpen((value) => !value)}
+              onClick={() =>
+                setMobileProductsOpen((value) => !value)
+              }
               className="flex items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
             >
               Produtos
+
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${
+                className={`h-4 w-4 transition-transform duration-300 ${
                   mobileProductsOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -409,11 +513,10 @@ export default function Navbar() {
                 {productCategories.map((item) => (
                   <Link
                     key={item.label}
-                    to={`/catalogo?cat=${encodeURIComponent(item.category)}`}
-                    onClick={() => {
-                      setOpen(false);
-                      setMobileProductsOpen(false);
-                    }}
+                    to={`/catalogo?cat=${encodeURIComponent(
+                      item.category,
+                    )}`}
+                    onClick={closeMobileMenu}
                     className="rounded-xl px-3 py-2.5 text-sm text-brand-500 transition-colors hover:bg-nude-100 hover:text-brand-700"
                   >
                     {item.label}
@@ -422,10 +525,7 @@ export default function Navbar() {
 
                 <Link
                   to="/catalogo"
-                  onClick={() => {
-                    setOpen(false);
-                    setMobileProductsOpen(false);
-                  }}
+                  onClick={closeMobileMenu}
                   className="rounded-xl px-3 py-2.5 text-sm font-semibold text-brand-600 transition-colors hover:bg-nude-100"
                 >
                   Ver catálogo completo
@@ -437,11 +537,11 @@ export default function Navbar() {
               <NavLink
                 key={link.to}
                 to={link.to}
-                onClick={() => setOpen(false)}
+                onClick={closeMobileMenu}
                 className={({ isActive }) =>
                   `rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-brand-500 text-white'
+                      ? 'bg-brand-600 text-white'
                       : 'text-brand-600 hover:bg-nude-100'
                   }`
                 }
@@ -453,8 +553,8 @@ export default function Navbar() {
             {!user && (
               <Link
                 to="/login"
-                onClick={() => setOpen(false)}
-                className="mt-3 flex items-center gap-2 rounded-2xl bg-brand-500 px-4 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-600"
+                onClick={closeMobileMenu}
+                className="mt-3 flex items-center gap-2 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700"
               >
                 <User className="h-5 w-5" />
                 Entrar
@@ -463,27 +563,20 @@ export default function Navbar() {
 
             {user && (
               <div className="mt-3 border-t border-nude-200 pt-3">
-                <div className="flex items-center gap-3 px-4 pb-3">
-                  <img
-                    src="/logo-paulo-arte-criativa.png"
-                    alt=""
-                    className="h-10 w-10 shrink-0 rounded-full object-cover shadow-soft"
-                  />
+                <div className="px-4 pb-3">
+                  <p className="truncate text-sm font-semibold text-brand-700">
+                    {displayName}
+                  </p>
 
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-brand-700">
-                      {displayName}
-                    </p>
-                    <p className="truncate text-xs text-brand-400">
-                      {user.email}
-                    </p>
-                  </div>
+                  <p className="mt-1 truncate text-xs text-brand-400">
+                    {user.email}
+                  </p>
                 </div>
 
                 <Link
                   to="/admin/painel"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 rounded-2xl bg-brand-500 px-4 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-600"
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-2 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700"
                 >
                   <LayoutDashboard className="h-5 w-5" />
                   Administração
@@ -491,7 +584,7 @@ export default function Navbar() {
 
                 <Link
                   to="/"
-                  onClick={() => setOpen(false)}
+                  onClick={closeMobileMenu}
                   className="mt-1 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium text-brand-600 transition-colors hover:bg-nude-100"
                 >
                   <Store className="h-5 w-5" />

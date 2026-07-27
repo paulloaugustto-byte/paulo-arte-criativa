@@ -34,7 +34,7 @@ export default function CategoryHighlights() {
   }
 
   return (
-    <section className="container-page py-16">
+    <section className="container-page pb-16 pt-10 sm:py-16">
       <div className="text-center">
         <span className="eyebrow">Encontre mais rápido</span>
 
